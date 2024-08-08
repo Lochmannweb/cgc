@@ -1,8 +1,27 @@
+// page.jsx
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/app/lib/supabaseClient';
 import { notFound } from 'next/navigation';
+
+export async function generateStaticParams() {
+  // Fetch all the potential IDs for the dynamic route
+  const { data, error } = await supabase
+    .from('CGC') // Assuming 'CGC' is your table where the IDs are stored
+    .select('hiddentitle'); // Adjust based on your data structure
+
+  if (error) {
+    console.error('Error fetching data for static paths: ', error);
+    return [];
+  }
+
+  // Map the data to create params objects
+  return data.map((item) => ({
+    id: `${item.hiddentitle}.jpg`, // Adjust this to match your actual ID format
+  }));
+}
 
 export default function ImageAndDataPage({ params }) {
   const [fetchError, setFetchError] = useState(null);
@@ -34,7 +53,7 @@ export default function ImageAndDataPage({ params }) {
     const { data, error } = await supabase
       .from('CGC')
       .select('*')
-      .eq('hiddentitle', imageBaseName) // Adjust this line to match your data structure
+      .eq('hiddentitle', imageBaseName); // Adjust this line to match your data structure
 
     if (error) {
       setFetchError('Could not fetch CGC data');
@@ -95,8 +114,6 @@ export default function ImageAndDataPage({ params }) {
     </div>
   );
 }
-
-
 
 
 // 'use client';
